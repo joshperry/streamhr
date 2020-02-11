@@ -1,0 +1,17 @@
+{
+  "name": "nodestreamhr",
+  "version": "1.0.0",
+  "description": "Get heartrate from a bluetooth monitor and display it on a webpage",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Joshua Perry <josh@6bit.com>",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.17.1",
+    "noble": "^1.9.1",
+    "ws": "^7.2.1"
+  }
+}
