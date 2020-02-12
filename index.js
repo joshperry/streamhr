@@ -2,7 +2,7 @@ import path from 'path'
 import { createServer } from 'http'
 import express from 'express'
 import WebSocket from 'ws'
-import { subscribe, unsubscribe } from './hr.js'
+import { subscribe } from './hr.js'
  
 const app = express()
 app.use(express.static(path.join(process.cwd(), '/public')))
@@ -16,32 +16,35 @@ wss.on('connection', ws =>  {
  
 server.listen(8080, 'localhost', () => {
 	console.log(`Listening for heartrate client on ${server.address().port}`)
-});
-
-// Subscribe to heartrate monitor updates
-subscribe((err, hrv) => {
-  if(err) {
-    console.error('Could not connect to heartrate monitor', err)
-    process.exit(1)
-  }
-
-  // Broadcast the heartrate info to all connected websocket clients
-	const jhrv = JSON.stringify(hrv)
-	for(let ws of wss.clients) {
-		if(ws.readyState === WebSocket.OPEN) {
-			ws.send(jhrv)
-    }
-	}
-
-  // TODO: add csv logging
 })
 
-// Handle ctrl-c
-process.once('SIGINT', function () {
-  console.log('got SIGINT, shutting down');
+// Our main async context
+;(async function() {
+  try {
+    // Subscribe to heartrate monitor updates
+    const unsubscribe = await subscribe(hrv => {
+      // Broadcast the heartrate info to all connected websocket clients
+      const jhrv = JSON.stringify(hrv)
+      for(let ws of wss.clients) {
+        if(ws.readyState === WebSocket.OPEN) {
+          ws.send(jhrv)
+        }
+      }
 
-  // Disconnect heartrate monitor
-  unsubscribe()
+      // TODO: add csv logging
+    })
 
-  process.exit(0)
-});
+    // Handle ctrl-c
+    process.once('SIGINT', function () {
+      console.log('got SIGINT, shutting down');
+
+      // Disconnect heartrate monitor
+      unsubscribe()
+
+      process.exit(0)
+    })
+  } catch(err) {
+    console.error('There was an error connecting to the HR monitor', err)
+    process.exit(1)
+  }
+}())

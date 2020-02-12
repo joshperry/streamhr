@@ -28,12 +28,4 @@ ws.onmessage = evt => {
   let head;
   [head, ...data] = [...data, hrv.bpm]
   Plotly.update('chart', { y: [data] })
-
-  /*
-  Plotly.extendTraces('chart', { y: [[hrv.bpm]] }, [0])
-
-  if(count++ > MAX) {
-    Plotly.relayout('chart', { xaxis: { range: [count - MAX, count] } })
-  }
-  */
 }

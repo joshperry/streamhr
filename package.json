@@ -11,7 +11,7 @@
   "type": "module",
   "dependencies": {
     "express": "^4.17.1",
-    "noble": "^1.9.1",
+    "noble-promise": "^1.9.2",
     "ws": "^7.2.1"
   }
 }

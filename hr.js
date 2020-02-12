@@ -1,100 +1,87 @@
-import noble from 'noble'
 import { promises as fs } from 'fs'
+import noble from 'noble-promise'
 
 const HR_SERVICE = '180d',
       HR_CHAR = '2a37'
-
-let hrchar = null
 
 /**
 Start listening for 'Heart Rate Measurement' characteristics emitted by the
 first Bluetooth LE peripheral that implements the 'Heart Rate' service.
 */
-export function subscribe(cb) {
-  if(hrchar) {
-    cb(new Error('Already listening to a heartrate monitor'))
+export async function subscribe(cb) {
+  // Find the peripheral heart rate characteristic
+  const hrchar = await findFirstCharacteristic(HR_SERVICE, HR_CHAR)
+
+  // heart rate data handler
+  hrchar.on('data', data => {
+    const hrv = parseHeartRateData(data)
+    cb(hrv)
+
+    console.log(hrv)
+  })
+
+  // Subscribe to data events
+  await hrchar.subscribe()
+
+  // Return the unsubscribe function
+  return function unsubscribe() {
+    // Close heartrate connection
+    if(hrchar) {
+      hrchar.removeAllListeners('data')
+      hrchar.unsubscribe()
+      hrchar = null
+    }
   }
+}
 
-  findCharacteristics([HR_SERVICE], [HR_CHAR], (err, characteristics) => {
-    if (err) return cb(err)
-
-    hrchar = characteristics[0]
-
-    hrchar.subscribe(async (err) => {
-      if (err) {
-        console.error('error subscribing the characteristic notifications', err)
-        return cb(err)
+async function waitForReady() {
+  return new Promise(resolve => {
+    const handle = state => {
+      if(state === 'poweredOn') {
+        noble.off('stateChange', handle)
+        resolve()
       }
+    }
 
-      // heart rate data handler
-      hrchar.on('data', async (data) => {
-        const hrv = parseHeartRateData(data)
-        cb(null, hrv)
+    noble.on('stateChange', handle)
+  })
+}
 
-        console.log(hrv)
-      })
+// Scan for the first peripheral implementing the given service UUIDs.
+async function findFirstPeripheral(serviceUUID) {
+  // Set up the discovery resolver
+  const futureperiph = new Promise(resolve => {
+    // set up scanning listener
+    noble.once('discover', peripheral => {
+      // as soon as the first peripheral is discovered, stop scanning
+      noble.stopScanning()
+      resolve(peripheral)
     })
   })
+
+  // Begin the scanning process
+  await noble.startScanning([serviceUUID], false)
+
+  return futureperiph
 }
 
-export function unsubscribe() {
-  // Close heartrate connection
-  if(hrchar) {
-    hrchar.unsubscribe()
-    hrchar = null
+// Find the first matching peripheral, connect to it, discover the matching service
+// & characteristic UUIDs, and callback with the first characteristic found.
+async function findFirstCharacteristic(serviceUUID, characteristicUUID) {
+  // the state has to be 'poweredOn' before we start scanning
+  if (noble.state !== 'poweredOn') {
+    await waitForReady()
   }
-}
 
-/**
-Ensure that noble is ready, then scan for peripherals implementing the given service UUIDs.
+  // Find it
+  const peripheral = await findFirstPeripheral(serviceUUID)
 
-@param {string[]} serviceUUIDs - Array of service UUIDs to search for
-@param {string} state - Current noble.state
-@param {function} callback - Callback taking arguments: (error, peripheral)
-*/
-function findFirstPeripheral(serviceUUIDs, state, callback) {
-  //console.error('noble.state:', state)
-  // the state has to be 'poweredOn' before we start scanning (IDK why)
-  if (state != 'poweredOn') {
-    // listening for the stateChange event is enough to trigger it
-    return noble.once('stateChange', state => findFirstPeripheral(serviceUUIDs, state, callback))
-  }
-  //console.error('scanning for:', serviceUUIDs)
-  // set up scanning listener
-  noble.on('discover', peripheral => {
-    // as soon as the first peripheral is discovered, stop scanning
-    noble.stopScanning()
-    callback(null, peripheral)
-  })
-  // the second argument to startScanning, allowDuplicates, defaults to false
-  // the third argument, the callback, is only called if noble is not in the
-  // right state, but not if xpc fails for any other reason, so it's not very useful.
-  noble.startScanning(serviceUUIDs, false, err => {
-    if (err) return callback(err)
-  })
-}
+  // Connect to it and query it for characteristics
+  await peripheral.connect()
+  const { characteristics } = await peripheral.discoverSomeServicesAndCharacteristics([serviceUUID], [characteristicUUID])
 
-/**
-Find the first matching peripheral, connect to it, discover the matching service
-& characteristic UUIDs, and callback with the first characteristic found.
-
-@param {string[]} serviceUUIDs - Array of service UUIDs to search for and filter by
-@param {string[]} characteristicUUIDs - Array of characteristic UUIDs to filter by
-@param {function} callback - Callback taking arguments: (error, characteristics)
-*/
-function findCharacteristics(serviceUUIDs, characteristicUUIDs, callback) {
-  findFirstPeripheral(serviceUUIDs, noble.state, (err, peripheral) => {
-    if (err) return callback(err)
-    // connect to the first found peripheral
-    peripheral.connect(err => {
-      if (err) return callback(err)
-      peripheral.discoverSomeServicesAndCharacteristics(serviceUUIDs, characteristicUUIDs, (err, services, characteristics) => {
-        //console.error('discovered characteristics:', characteristics)
-        // just ignore the services
-        callback(err, characteristics)
-      })
-    })
-  })
+  // If there was no error thrown, there should be at least one
+  return characteristics[0]
 }
 
 const sampleCorrection = 1000.0 / 1024.0 // = 0.9765625
