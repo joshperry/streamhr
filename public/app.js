@@ -10,7 +10,7 @@ Plotly.plot('chart', [{
   autosize: false,
   width: 250,
   height: 120,
-  margin: { l: 20, r: 0, b: 0, t: 0, },
+  margin: { l: 23, r: 0, b: 0, t: 0, },
   paper_bgcolor: 'rgba(0,0,0,0)',
   plot_bgcolor: 'rgba(0,0,0,0)',
   xaxis: {
