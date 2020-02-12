@@ -1,0 +1,29 @@
+body {
+  font-family: Helvetica, Arial, Sans-Serif;
+}
+
+#wrap {
+  width: 250px;
+}
+
+#heartwrap {
+  float: right;
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(.75);
+  }
+  60% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(.75);
+  }
+}
+
+#heart {
+  height: .75em;
+  margin-right: 5px;
+  animation: heartbeat 400ms;
+}

@@ -24,6 +24,16 @@ const ws = new WebSocket(`ws://${location.host}`)
 ws.onmessage = evt => {
   const hrv = JSON.parse(evt.data)
 
+  // Beat the heart graphic
+  const heart = document.getElementById('heart')
+  heart.style.animation = 'none'
+  heart.offsetHeight; // Trigger reflow hack
+  heart.style.animation = null
+
+  // Set the bpm text
+  const bpm = document.getElementById('bpm')
+  bpm.textContent = hrv.bpm
+
   // Slide the samples and update the chart
   let head;
   [head, ...data] = [...data, hrv.bpm]
