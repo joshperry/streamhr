@@ -22,11 +22,8 @@ body {
   0% {
     transform: scale(.75);
   }
-  60% {
-    transform: scale(1);
-  }
   100% {
-    transform: scale(.75);
+    transform: scale(1);
   }
 }
 
