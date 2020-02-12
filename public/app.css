@@ -10,6 +10,14 @@ body {
   float: right;
 }
 
+#chart {
+  font-weight: bold !important;
+}
+
+#bpm {
+  font-weight: bold;
+}
+
 @keyframes heartbeat {
   0% {
     transform: scale(.75);
