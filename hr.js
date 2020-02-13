@@ -29,7 +29,6 @@ export async function subscribe(cb) {
     if(hrchar) {
       hrchar.removeAllListeners('data')
       hrchar.unsubscribe()
-      hrchar = null
     }
   }
 }
