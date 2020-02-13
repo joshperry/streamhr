@@ -2,7 +2,9 @@
 
 This is a small project that will connect to a bluetooth low energy (BLE) heartrate monitor and allow visualization of the data.
 
-The main purpose of this project is to use a Browser source in [OBS Studio](https://obsproject.com/) (or other similar software) in order to allow display of realtime heartrate on a stream.
+The main purpose of this project is to use a Browser source in [OBS Studio](https://obsproject.com/) (or other similar software) in order to allow display of realtime heartrate on a stream, but could be used anywhere that you want to display or log heartrate data.
+
+For a quick guid on installation and configuration take a look at the [howto video](https://youtu.be/TeF-9ZiRYuc).
 
 A version of [node.js](https://nodejs.org) must be installed that supports experimental modules (dev'd on 13.8).
 [noble](https://www.npmjs.com/package/noble) is used for handling communication with the BLE devices, be sure your BT adapter is configured properly.
