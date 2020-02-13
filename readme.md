@@ -1,5 +1,7 @@
 # BLE Heartrate Visualizer
 
+![demo screen capture](demo.gif)
+
 This is a small project that will connect to a bluetooth low energy (BLE) heartrate monitor and allow visualization of the data.
 
 The main purpose of this project is to use a Browser source in [OBS Studio](https://obsproject.com/) (or other similar software) in order to allow display of realtime heartrate on a stream, but could be used anywhere that you want to display or log heartrate data.
