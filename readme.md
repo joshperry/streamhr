@@ -4,7 +4,7 @@ This is a small project that will connect to a bluetooth low energy (BLE) heartr
 
 The main purpose of this project is to use a Browser source in [OBS Studio](https://obsproject.com/) (or other similar software) in order to allow display of realtime heartrate on a stream, but could be used anywhere that you want to display or log heartrate data.
 
-For a quick guid on installation and configuration take a look at the [howto video](https://youtu.be/TeF-9ZiRYuc).
+For a quick guide on installation and configuration take a look at the [howto video](https://youtu.be/TeF-9ZiRYuc).
 
 A version of [node.js](https://nodejs.org) must be installed that supports experimental modules (dev'd on 13.8).
 [noble](https://www.npmjs.com/package/noble) is used for handling communication with the BLE devices, be sure your BT adapter is configured properly.
@@ -13,6 +13,6 @@ To view the visualization, run `node index.js`, and then connect to http://local
 The code in the browser connects via a websocket to the server and streams the data in realtime.
 
 The current visualization shows a graph of the heartrate for the last 60 samples using the well documented [plotly.js](https://plot.ly/javascript/) graphing library.
-The visualization can be changed by modifying the client source files in the `public` directory.
+The visualization can be changed by modifying the client source files in the `public` directory, most useful properties are easily changeable in `config.js`.
 
 Multiple simultaneous connections are supported, but the server defaults to only listen for connections on the local computer.

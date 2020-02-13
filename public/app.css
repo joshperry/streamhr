@@ -2,10 +2,6 @@ body {
   font-family: Helvetica, Arial, Sans-Serif;
 }
 
-#wrap {
-  width: 250px;
-}
-
 #heartwrap {
   float: right;
 }
